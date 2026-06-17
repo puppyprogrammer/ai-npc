@@ -16,7 +16,7 @@ export function App() {
       <div style={{ flex: 1, position: 'relative' }}>
         <AiNpc
           ref={npc}
-          model="/avatar.vrm"
+          model="https://cdn.jsdelivr.net/gh/pixiv/three-vrm@dev/packages/three-vrm/examples/models/VRM1_Constraint_Twist_Sample.vrm"
           voice={{ provider: 'webspeech' }}
           systemPrompt="You are a friendly NPC."
           onSpeakingChange={setSpeaking}
@@ -55,7 +55,7 @@ export function App() {
         <Btn onClick={() => void npc.current?.standUp()}>stand</Btn>
       </div>
       <p style={{ padding: '0 12px 12px', margin: 0, fontSize: 12, opacity: 0.6 }}>
-        Voice = browser Web Speech (no key). Drop a VRM at <code>public/avatar.vrm</code>.
+        Voice = browser Web Speech (no key). Loads a public sample VRM — swap the <code>model</code> prop for your own.
       </p>
     </div>
   );
