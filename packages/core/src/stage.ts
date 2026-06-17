@@ -8,7 +8,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils, type VRM } from '@pixiv/three-vrm';
-import type { Speech } from './types';
+import type { Affordance, Mood, Speech } from './types';
+import { Behavior } from './behavior';
 
 // Oculus viseme codes (e.g. from AWS Polly speech-marks) → the nearest of VRM's 5 vowel mouth shapes.
 const VISEME_TO_VOWEL: Record<string, Vowel> = {
@@ -31,6 +32,7 @@ export class VrmStage {
   private readonly camera: THREE.PerspectiveCamera;
   private readonly clock = new THREE.Clock();
   private vrm: VRM | null = null;
+  private behavior: Behavior | null = null;
   private raf = 0;
 
   // blink
@@ -92,6 +94,7 @@ export class VrmStage {
       VRMUtils.deepDispose(this.vrm.scene);
     }
     this.vrm = vrm;
+    this.behavior = new Behavior(vrm);
     this.scene.add(vrm.scene);
 
     // Eyes track the camera by default ("looks at the viewer").
@@ -120,6 +123,7 @@ export class VrmStage {
         for (const v of VOWELS) em.setValue(v, v === this.activeVowel ? this.mouth : 0);
         em.setValue('blink', this.blinkVal);
       }
+      this.behavior?.update(dt, this.speaking);
       vrm.update(dt);
     }
     this.renderer.render(this.scene, this.camera);
@@ -231,6 +235,28 @@ export class VrmStage {
       this.scene.add(o);
       this.vrm.lookAt.target = o;
     }
+  }
+
+  setMood(mood: Mood): void {
+    this.behavior?.setMood(mood);
+  }
+
+  walkTo(x: number, z: number): Promise<void> {
+    return this.behavior ? this.behavior.walkTo(x, z) : Promise.resolve();
+  }
+
+  pose(affordance: Affordance, at: { x: number; y: number; z: number }, facing?: number): void {
+    this.behavior?.pose(affordance, new THREE.Vector3(at.x, at.y, at.z), facing);
+  }
+
+  standUp(): void {
+    this.behavior?.standUp();
+  }
+
+  /** Current ground position of the NPC root. */
+  getPosition(): { x: number; z: number } {
+    const p = this.vrm?.scene.position;
+    return { x: p?.x ?? 0, z: p?.z ?? 0 };
   }
 
   dispose(): void {

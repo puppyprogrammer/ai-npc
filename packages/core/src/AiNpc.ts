@@ -12,9 +12,7 @@ import { resolveBrain, resolveVoice } from './adapters';
 import { detectAffordances } from './affordances';
 import { VrmStage } from './stage';
 
-const notReady = (what: string): never => {
-  throw new Error(`ai-npc: ${what} requires locomotion/affordances, not implemented yet (TODO: port from Eve).`);
-};
+const dist2 = (a: Vec3, b: { x: number; z: number }): number => (a.x - b.x) ** 2 + (a.z - b.z) ** 2;
 
 class AiNpc implements AiNpcHandle {
   private readonly opts: AiNpcOptions;
@@ -72,20 +70,35 @@ class AiNpc implements AiNpcHandle {
     return reply;
   }
 
-  async walkTo(_x: number, _z: number): Promise<void> {
-    notReady('walkTo()');
+  async walkTo(x: number, z: number): Promise<void> {
+    await this.stage?.walkTo(x, z);
   }
 
-  async goTo(_affordance: Affordance, _target?: Vec3 | string): Promise<void> {
-    notReady('goTo()');
+  async goTo(affordance: Affordance, target?: Vec3 | string): Promise<void> {
+    if (!this.stage) return;
+    const anchor = this.resolveAnchor(affordance, target);
+    if (!anchor) throw new Error(`ai-npc: no '${affordance}' surface found to goTo().`);
+    await this.stage.walkTo(anchor.position.x, anchor.position.z);
+    this.stage.pose(affordance, anchor.position, anchor.facing);
   }
 
   async standUp(): Promise<void> {
-    notReady('standUp()');
+    this.stage?.standUp();
   }
 
-  setMood(_mood: Mood): void {
-    // TODO(port): drive a held VRM expression + feed affect into the Movement-Director (step 2).
+  setMood(mood: Mood): void {
+    this.stage?.setMood(mood);
+  }
+
+  /** Pick the target for goTo: an explicit Vec3, an anchor id, or the nearest matching affordance. */
+  private resolveAnchor(affordance: Affordance, target?: Vec3 | string): Anchor | null {
+    if (target && typeof target === 'object') return { id: 'adhoc', position: target, affordance };
+    if (typeof target === 'string') return this.anchors.find((a) => a.id === target) ?? null;
+    const here = this.stage?.getPosition() ?? { x: 0, z: 0 };
+    const matches = this.anchors.filter((a) => a.affordance === affordance);
+    if (!matches.length) return null;
+    return matches.reduce((best, a) =>
+      dist2(a.position, here) < dist2(best.position, here) ? a : best);
   }
 
   lookAt(target: Vec3 | 'camera' | 'cursor' | null): void {
