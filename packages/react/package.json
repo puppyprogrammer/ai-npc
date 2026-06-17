@@ -1,0 +1,42 @@
+{
+  "name": "ai-npc-react",
+  "version": "0.0.1",
+  "description": "React wrapper for ai-npc — a drop-in conversational 3D AI NPC. <AiNpc model=… brain=… voice=… />",
+  "keywords": [
+    "react", "ai", "npc", "avatar", "3d", "three", "threejs", "vrm", "llm",
+    "voice", "lip-sync", "conversational-ai", "chatbot", "digital-human", "component"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsup src/index.tsx --format esm --dts --external react --clean",
+    "dev": "tsup src/index.tsx --format esm --dts --external react --watch",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "ai-npc": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "react": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/puppyprogrammer/ai-npc" },
+  "homepage": "https://github.com/puppyprogrammer/ai-npc"
+}

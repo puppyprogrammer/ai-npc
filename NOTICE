@@ -1,0 +1,15 @@
+ai-npc
+Copyright (c) 2026 puppyprogrammer
+
+This product includes / builds upon the following open-source work:
+
+- TalkingHead by met4citizen — https://github.com/met4citizen/TalkingHead
+  Used as the basis for the real-time VRM rendering + lip-sync approach.
+  See that project's license for its terms.
+
+- @pixiv/three-vrm by pixiv Inc. — https://github.com/pixiv/three-vrm
+  VRM model loading and humanoid rig. MIT License.
+
+- three.js — https://github.com/mrdoob/three.js — MIT License.
+
+Please retain this NOTICE and the above attributions in redistributions.

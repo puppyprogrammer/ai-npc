@@ -1,0 +1,41 @@
+{
+  "name": "ai-npc",
+  "version": "0.0.1",
+  "description": "Drop-in conversational 3D AI NPC for the web (Three.js): talks, emotes, walks, and sits/lies/stands on any surface. Bring your own LLM + voice.",
+  "keywords": [
+    "ai", "npc", "avatar", "3d", "three", "threejs", "vrm", "llm", "voice",
+    "lip-sync", "conversational-ai", "chatbot", "digital-human", "game", "webgl"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "NOTICE"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "dependencies": {
+    "@pixiv/three-vrm": "^3.0.0"
+  },
+  "devDependencies": {
+    "three": "^0.160.0",
+    "@types/three": "^0.160.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/puppyprogrammer/ai-npc" },
+  "homepage": "https://github.com/puppyprogrammer/ai-npc"
+}
