@@ -16,10 +16,12 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md", "NOTICE"],
+  "files": ["dist", "README.md"],
+  "publishConfig": { "access": "public" },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --dts --watch",
+    "prepublishOnly": "npm run build",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit"
   },
