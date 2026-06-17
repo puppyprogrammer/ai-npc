@@ -74,6 +74,13 @@ export class Behavior {
     this.t += dt;
     this.resetControlledBones();
 
+    // Base standing pose so she's never in a T-pose (the VRM rest pose is T/A). Eve's tuned A-pose:
+    // upper arms down at the sides, slight elbow bend. States below add motion on top of this.
+    this.rot('rightUpperArm', 0, 0, 1.3);
+    this.rot('leftUpperArm', 0, 0, -1.3);
+    this.rot('rightLowerArm', 0, 0, 0.12);
+    this.rot('leftLowerArm', 0, 0, -0.12);
+
     // Mood expression eases in/out.
     const targetMood = this.mood === 'neutral' ? 0 : 0.85;
     this.moodLevel += (targetMood - this.moodLevel) * Math.min(1, dt * 6);
@@ -127,14 +134,15 @@ export class Behavior {
     root.position.x += (dx / dist) * step;
     root.position.z += (dz / dist) * step;
 
-    // procedural walk cycle
+    // procedural walk cycle (legs swing forward/back; arms counter-swing forward/back, on top of the
+    // arms-down base so they don't fly out sideways)
     const c = Math.sin(this.t * 8);
     this.rot('leftUpperLeg', c * 0.5, 0, 0);
     this.rot('rightUpperLeg', -c * 0.5, 0, 0);
     this.rot('leftLowerLeg', Math.max(0, -c) * 0.6, 0, 0);
     this.rot('rightLowerLeg', Math.max(0, c) * 0.6, 0, 0);
-    this.rot('leftUpperArm', 0, 0, -c * 0.2);
-    this.rot('rightUpperArm', 0, 0, c * 0.2);
+    this.rot('leftUpperArm', -c * 0.3, 0, 0);
+    this.rot('rightUpperArm', c * 0.3, 0, 0);
   }
 
   private arriveWalk(): void {

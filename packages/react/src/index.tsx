@@ -41,7 +41,22 @@ export const AiNpc = forwardRef<AiNpcHandle | null, AiNpcProps>(function AiNpc(p
   const containerRef = useRef<HTMLDivElement | null>(null);
   const npcRef = useRef<AiNpcHandle | null>(null);
 
-  useImperativeHandle(ref, () => npcRef.current as AiNpcHandle, []);
+  // Stable handle that delegates to the live engine at call time. (The engine is created async in the
+  // effect below, so we must NOT capture npcRef.current once — that would freeze it to null.)
+  useImperativeHandle(ref, (): AiNpcHandle => ({
+    init: () => npcRef.current?.init() ?? Promise.resolve(),
+    say: (t) => npcRef.current?.say(t) ?? Promise.resolve(),
+    chat: (t) => npcRef.current?.chat(t) ?? Promise.resolve(''),
+    walkTo: (x, z) => npcRef.current?.walkTo(x, z) ?? Promise.resolve(),
+    goTo: (a, t) => npcRef.current?.goTo(a, t) ?? Promise.resolve(),
+    standUp: () => npcRef.current?.standUp() ?? Promise.resolve(),
+    setMood: (m) => npcRef.current?.setMood(m),
+    lookAt: (t) => npcRef.current?.lookAt(t),
+    getAffordances: () => npcRef.current?.getAffordances() ?? [],
+    rescanAffordances: () => npcRef.current?.rescanAffordances() ?? [],
+    dispose: () => npcRef.current?.dispose(),
+    get scene() { return npcRef.current?.scene ?? null; },
+  }), []);
 
   // Re-create the NPC when the model changes (cheap props like systemPrompt are read on next call).
   useEffect(() => {
