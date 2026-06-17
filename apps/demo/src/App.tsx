@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { AiNpc } from 'ai-npc-react';
 import type { AiNpcHandle } from 'ai-npc';
 
@@ -31,7 +32,7 @@ export function App() {
           </div>
         )}
       </div>
-      <div style={{ display: 'flex', gap: 8, padding: 12 }}>
+      <div style={{ display: 'flex', gap: 8, padding: '12px 12px 0' }}>
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -42,6 +43,16 @@ export function App() {
           style={{ padding: '8px 16px', borderRadius: 8, border: 0, background: speaking ? '#30363d' : '#2f81f7', color: '#fff', cursor: 'pointer' }}>
           {speaking ? 'Speaking…' : 'Speak'}
         </button>
+      </div>
+      {/* Debug controls for steps 2-4 — exercise mood, locomotion, and surface affordances. */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: 12 }}>
+        {(['neutral', 'happy', 'sad', 'angry', 'surprised', 'thinking'] as const).map((m) => (
+          <Btn key={m} onClick={() => npc.current?.setMood(m)}>{m}</Btn>
+        ))}
+        <Btn onClick={() => void npc.current?.walkTo(0.8, 0)}>walk →</Btn>
+        <Btn onClick={() => void npc.current?.walkTo(-0.8, 0)}>walk ←</Btn>
+        <Btn onClick={() => void npc.current?.goTo('sit').catch((e) => setErr(String(e)))}>sit (nearest)</Btn>
+        <Btn onClick={() => void npc.current?.standUp()}>stand</Btn>
       </div>
       <p style={{ padding: '0 12px 12px', margin: 0, fontSize: 12, opacity: 0.6 }}>
         Voice = browser Web Speech (no key). Drop a VRM at <code>public/avatar.vrm</code>.
@@ -57,4 +68,13 @@ export function App() {
       setErr(e instanceof Error ? e.message : String(e));
     }
   }
+}
+
+function Btn({ children, onClick }: { children: ReactNode; onClick: () => void }) {
+  return (
+    <button onClick={onClick}
+      style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#e6edf3', cursor: 'pointer', fontSize: 13 }}>
+      {children}
+    </button>
+  );
 }
