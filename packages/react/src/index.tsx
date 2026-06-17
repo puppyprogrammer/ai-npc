@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import type { CSSProperties } from 'react';
 import { createNpc } from 'ai-npc';
 import type { AiNpcHandle, BrainConfig, VoiceConfig, AffordanceConfig, Anchor } from 'ai-npc';
 
@@ -15,7 +16,7 @@ export type AiNpcProps = {
   /** Fired when the NPC starts/stops speaking. */
   onSpeakingChange?: (speaking: boolean) => void;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 };
 
 /**

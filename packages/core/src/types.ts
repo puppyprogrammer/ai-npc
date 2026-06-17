@@ -97,6 +97,8 @@ export interface AiNpcOptions {
 
 /** The running NPC. Created via `createNpc(options)`. */
 export interface AiNpcHandle {
+  /** Boot the renderer, load the model, and scan affordances. Call once before use. */
+  init(): Promise<void>;
   /** Speak a line directly (lip-sync + emotion), no LLM round-trip. */
   say(text: string): Promise<void>;
   /** Send user input through the Brain, then speak the reply. Returns the reply text. */
