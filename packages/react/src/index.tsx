@@ -51,6 +51,7 @@ export const AiNpc = forwardRef<AiNpcHandle | null, AiNpcProps>(function AiNpc(p
     goTo: (a, t) => npcRef.current?.goTo(a, t) ?? Promise.resolve(),
     standUp: () => npcRef.current?.standUp() ?? Promise.resolve(),
     setMood: (m) => npcRef.current?.setMood(m),
+    gesture: (n) => npcRef.current?.gesture(n),
     lookAt: (t) => npcRef.current?.lookAt(t),
     getAffordances: () => npcRef.current?.getAffordances() ?? [],
     rescanAffordances: () => npcRef.current?.rescanAffordances() ?? [],

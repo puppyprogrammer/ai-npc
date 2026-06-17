@@ -69,7 +69,7 @@ export type BrainConfig =
 
 export type VoiceConfig =
   | Voice
-  | { provider: 'webspeech'; voice?: string; rate?: number; pitch?: number }
+  | { provider: 'webspeech'; voice?: string; prefer?: 'female' | 'male'; rate?: number; pitch?: number }
   | { provider: 'elevenlabs'; apiKey: string; voiceId: string; modelId?: string }
   | { provider: 'openai'; apiKey: string; voice?: string; model?: string }
   | { provider: 'endpoint'; url: string; headers?: Record<string, string> };
@@ -114,6 +114,8 @@ export interface AiNpcHandle {
   /** Stop any current interaction and stand. */
   standUp(): Promise<void>;
   setMood(mood: Mood): void;
+  /** Play a one-off gesture (e.g. 'wave', 'nod'), then return to idle. */
+  gesture(name: string): void;
   lookAt(target: Vec3 | 'camera' | 'cursor' | null): void;
   /** List affordances the engine has detected/registered in the current scene. */
   getAffordances(): Anchor[];

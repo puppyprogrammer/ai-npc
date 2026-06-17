@@ -43,6 +43,13 @@ export class Behavior {
     this.mood = mood;
   }
 
+  private gestureName: string | null = null;
+  private gestureUntil = 0;
+  gesture(name: string): void {
+    this.gestureName = name;
+    this.gestureUntil = performance.now() + (name === 'wave' ? 2600 : 1400);
+  }
+
   /** Walk to a ground coordinate. Resolves on arrival. */
   walkTo(x: number, z: number): Promise<void> {
     this.walkTarget = new THREE.Vector2(x, z);
@@ -98,6 +105,25 @@ export class Behavior {
       case 'climb':
       case 'stand': this.applyStandOn(); break;
       default: this.updateIdle(speaking); break;
+    }
+
+    // One-off gestures override the relevant limb on top of the current state.
+    if (this.gestureName && performance.now() < this.gestureUntil) this.applyGesture(this.gestureName);
+    else this.gestureName = null;
+  }
+
+  private applyGesture(name: string): void {
+    const t = this.t;
+    if (name === 'wave') {
+      const w = Math.sin(t * 11) * 0.4; // hand oscillation
+      this.setAbs('rightUpperArm', -0.2, 0, 0.25);  // raise the right arm up/out
+      this.setAbs('rightLowerArm', 0, 0, -1.25 + w); // forearm up by the head, waving
+      this.setAbs('rightHand', 0, 0, w * 0.6);
+    } else if (name === 'nod') {
+      this.setAbs('head', 0.18 + Math.sin(t * 7) * 0.18, 0, 0);
+    } else if (name === 'point') {
+      this.setAbs('rightUpperArm', -1.4, 0, 0.2);
+      this.setAbs('rightLowerArm', 0, 0, 0);
     }
   }
 
@@ -179,7 +205,7 @@ export class Behavior {
   // ── bone helpers ────────────────────────────────────────────────────────────────────────
   private static readonly CONTROLLED = [
     'spine', 'chest', 'neck', 'head',
-    'leftUpperArm', 'leftLowerArm', 'rightUpperArm', 'rightLowerArm',
+    'leftUpperArm', 'leftLowerArm', 'rightUpperArm', 'rightLowerArm', 'leftHand', 'rightHand',
     'leftUpperLeg', 'leftLowerLeg', 'rightUpperLeg', 'rightLowerLeg',
   ] as const;
 
@@ -198,6 +224,12 @@ export class Behavior {
   private rot(name: string, x: number, y: number, z: number): void {
     const b = this.bone(name);
     if (b) b.rotation.set(b.rotation.x + x, b.rotation.y + y, b.rotation.z + z);
+  }
+
+  // Set a bone's local rotation absolutely (overrides the base/idle pose — used by gestures).
+  private setAbs(name: string, x: number, y: number, z: number): void {
+    const b = this.bone(name);
+    if (b) b.rotation.set(x, y, z);
   }
 
   private bone(name: string): THREE.Object3D | null {

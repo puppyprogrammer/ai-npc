@@ -89,7 +89,10 @@ export function resolveBrain(cfg: BrainConfig | undefined): Brain | null {
 
 /** Browser SpeechSynthesis — zero-config, no key. Great default + demo. Plays directly; the engine
  *  estimates lip-sync from timing since the Web Speech API gives no audio buffer. */
-function webSpeechVoice(cfg: { voice?: string; rate?: number; pitch?: number }): Voice {
+const FEMALE_VOICE_RE = /zira|aria|jenny|michelle|eva|samantha|victoria|susan|hazel|catherine|fiona|female|woman/i;
+const MALE_VOICE_RE = /david|mark|guy|alex|daniel|fred|george|james|male\b|\bman\b/i;
+
+function webSpeechVoice(cfg: { voice?: string; prefer?: 'female' | 'male'; rate?: number; pitch?: number }): Voice {
   return {
     speak(text) {
       return new Promise<Speech>((resolve, reject) => {
@@ -99,10 +102,18 @@ function webSpeechVoice(cfg: { voice?: string; rate?: number; pitch?: number }):
         const u = new SpeechSynthesisUtterance(text);
         if (cfg.rate) u.rate = cfg.rate;
         if (cfg.pitch) u.pitch = cfg.pitch;
-        if (cfg.voice) {
-          const v = window.speechSynthesis.getVoices().find((x) => x.name === cfg.voice);
-          if (v) u.voice = v;
+        const voices = window.speechSynthesis.getVoices();
+        // Pick a voice: explicit name (substring) → gender preference → leave OS default.
+        let chosen: SpeechSynthesisVoice | undefined;
+        if (cfg.voice) chosen = voices.find((x) => x.name.toLowerCase().includes(cfg.voice!.toLowerCase()));
+        if (!chosen && cfg.prefer === 'female') chosen = voices.find((x) => FEMALE_VOICE_RE.test(x.name));
+        if (!chosen && cfg.prefer === 'male') chosen = voices.find((x) => MALE_VOICE_RE.test(x.name));
+        if (!chosen && cfg.prefer) {
+          // fall back: pick an en voice that isn't the other gender
+          const other = cfg.prefer === 'female' ? MALE_VOICE_RE : FEMALE_VOICE_RE;
+          chosen = voices.find((x) => /^en[-_]/i.test(x.lang) && !other.test(x.name));
         }
+        if (chosen) u.voice = chosen;
         // Web Speech plays itself and yields no buffer; hand back a no-op audio + duration estimate
         // (~14 chars/sec) so the engine can drive a generic talking mouth-flap.
         const durationMs = Math.max(700, (text.length / 14) * 1000);

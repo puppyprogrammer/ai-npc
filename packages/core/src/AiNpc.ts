@@ -97,6 +97,10 @@ class AiNpc implements AiNpcHandle {
     this.stage?.setMood(mood);
   }
 
+  gesture(name: string): void {
+    this.stage?.gesture(name);
+  }
+
   /** Pick the target for goTo: an explicit Vec3, an anchor id, or the nearest matching affordance. */
   private resolveAnchor(affordance: Affordance, target?: Vec3 | string): Anchor | null {
     if (target && typeof target === 'object') return { id: 'adhoc', position: target, affordance };

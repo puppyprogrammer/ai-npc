@@ -241,6 +241,10 @@ export class VrmStage {
     this.behavior?.setMood(mood);
   }
 
+  gesture(name: string): void {
+    this.behavior?.gesture(name);
+  }
+
   walkTo(x: number, z: number): Promise<void> {
     return this.behavior ? this.behavior.walkTo(x, z) : Promise.resolve();
   }
