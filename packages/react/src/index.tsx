@@ -15,6 +15,8 @@ export type AiNpcProps = {
   anchors?: Anchor[];
   /** Fired when the NPC starts/stops speaking. */
   onSpeakingChange?: (speaking: boolean) => void;
+  /** Fired once after the model is loaded — add world geometry to the ref's `scene` then call `rescanAffordances()`. */
+  onReady?: () => void;
   className?: string;
   style?: CSSProperties;
 };
@@ -54,6 +56,7 @@ export const AiNpc = forwardRef<AiNpcHandle | null, AiNpcProps>(function AiNpc(p
       affordances: props.affordances,
       anchors: props.anchors,
       onSpeakingChange: props.onSpeakingChange,
+      onReady: props.onReady,
     });
     npcRef.current = npc;
     void npc.init();

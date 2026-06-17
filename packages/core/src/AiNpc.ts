@@ -19,6 +19,7 @@ class AiNpc implements AiNpcHandle {
   private readonly brain: Brain | null;
   private readonly voice: Voice | null;
   private readonly history: ChatMessage[] = [];
+  private readonly explicitAnchors: Anchor[];
   private anchors: Anchor[];
   private stage: VrmStage | null = null;
   private speaking = false;
@@ -27,7 +28,8 @@ class AiNpc implements AiNpcHandle {
     this.opts = opts;
     this.brain = resolveBrain(opts.brain);
     this.voice = resolveVoice(opts.voice);
-    this.anchors = [...(opts.anchors ?? [])];
+    this.explicitAnchors = [...(opts.anchors ?? [])];
+    this.anchors = [...this.explicitAnchors];
     if (opts.persona?.systemPrompt) this.history.push({ role: 'system', content: opts.persona.systemPrompt });
   }
 
@@ -44,9 +46,14 @@ class AiNpc implements AiNpcHandle {
     });
     await this.stage.loadModel(this.opts.model);
     this.stage.start();
-    if (this.opts.affordances?.auto !== false) {
-      this.anchors = [...this.anchors, ...detectAffordances(this.stage.scene, this.opts.affordances)];
-    }
+    if (this.opts.affordances?.auto !== false) this.rescanAffordances();
+    this.opts.onReady?.();
+  }
+
+  rescanAffordances(): Anchor[] {
+    const found = this.stage ? detectAffordances(this.stage.scene, this.opts.affordances) : [];
+    this.anchors = [...this.explicitAnchors, ...found];
+    return [...this.anchors];
   }
 
   async say(text: string): Promise<void> {

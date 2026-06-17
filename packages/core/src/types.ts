@@ -93,6 +93,9 @@ export interface AiNpcOptions {
   camera?: { view?: 'full' | 'portrait'; position?: Vec3; target?: Vec3 };
   /** Called when the NPC starts/stops speaking, for UI sync. */
   onSpeakingChange?: (speaking: boolean) => void;
+  /** Called once after init() finishes (model loaded, first affordance scan done). Add your own world
+   *  geometry to `scene` here, then call `rescanAffordances()` so the NPC can use it. */
+  onReady?: () => void;
 }
 
 /** The running NPC. Created via `createNpc(options)`. */
@@ -114,6 +117,9 @@ export interface AiNpcHandle {
   lookAt(target: Vec3 | 'camera' | 'cursor' | null): void;
   /** List affordances the engine has detected/registered in the current scene. */
   getAffordances(): Anchor[];
+  /** Re-scan the scene for surfaces (call after adding/removing world geometry). Returns the new set
+   *  (explicit anchors + freshly detected). */
+  rescanAffordances(): Anchor[];
   /** Access the underlying three.js scene to add your own world geometry. */
   readonly scene: unknown; // THREE.Scene — typed in the real export to avoid leaking three here
   dispose(): void;
